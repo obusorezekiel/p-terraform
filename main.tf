@@ -28,7 +28,7 @@ module "sg" {
   environment         = local.environment
   http_port           = var.http_port
   https_port          = var.https_port
-  postgres_port       = var.postgres_port
+  mysql_port       = var.db_port
   ingress_cidr_blocks = var.ingress_cidr_blocks
   egress_cidr_blocks  = var.egress_cidr_blocks
 }
@@ -55,13 +55,14 @@ module "cloudfront" {
 module "alb" {
   source                  = "./modules/alb"
   lb_sg                   = module.sg.lb_security_group_id
+  environment             = local.environment
   public_subnets          = module.vpc.public_subnet_ids
   vpc_id                  = module.vpc.vpc_id
   tg_http_port            = var.tg_http_port
   tg_http_protocol        = var.tg_http_protocol
   tg_https_port           = var.tg_https_port
   tg_https_protocol       = var.tg_https_protocol
-  listener_http_port      = var.listener_http_protocol
+  listener_http_port      = var.listener_http_port
   listener_http_protocol  = var.listener_http_protocol
   listener_https_port     = var.listener_https_port
   listener_https_protocol = var.listener_https_protocol

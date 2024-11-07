@@ -5,8 +5,8 @@ variable "domain_name" {
 }
 
 variable "environment" {
-  decription = "The Code Env"
-  type       = string
+  description = "The Code Env"
+  type        = string
   # default = "dev"
 }
 
@@ -34,13 +34,13 @@ variable "lb_sg_name" {
   # default = "lb_sg_name"
 }
 
-variable "complex_backend_ecs_sg" {
+variable "backend_sg_name" {
   description = "complex_backend_ecs_sg"
   type        = string
   # default = "complex_backend_ecs_sg"
 }
 
-variable "complex_rds_sg" {
+variable "rds_sg_name" {
   description = "complex_rds_sg"
   type        = string
   # default = "complex_rds_sg"
@@ -82,7 +82,7 @@ variable "tg_http_port" {
   # default = 80
 }
 
-variables "tg_http_protocol" {
+variable "tg_http_protocol" {
   description = "HTTP port"
   type        = string
   # default = "HTTP"
@@ -94,7 +94,7 @@ variable "tg_https_port" {
   # default = 443
 }
 
-variables "tg_https_protocol" {
+variable "tg_https_protocol" {
   description = "HTTPS port"
   type        = string
   # default = "HTTPS"
@@ -148,7 +148,7 @@ variable "container_image" {
   // default     = "nginx"
 }
 
-variable "container_image" {
+variable "container_port" {
   description = "app_name"
   type        = number
   // default     = 80
@@ -181,66 +181,55 @@ variable "db_port" {
 variable "allocated_storage" {
   description = "The amount of storage (in GB) allocated for the database instance"
   type        = number
-  // default     = 20
 }
 
 variable "database_name" {
   description = "The name of the initial database to create in the instance"
   type        = string
-  // default     = "complex_db"
 }
 
 variable "db_username" {
   description = "The master username for the database instance"
   type        = string
-  // default     = "my_user_admin"
 }
 
 
 variable "skip_final_snapshot" {
   description = "Indicates whether to skip the final snapshot before deleting the database"
   type        = bool
-  // default     = false
 }
 
 variable "final_snapshot_identifier" {
   description = "The name of the final snapshot when the database is deleted"
   type        = string
-  // default     = "complex-db-snapshot"
 }
 
 variable "deletion_protection" {
   description = "Whether to enable deletion protection for the database"
   type        = bool
-  // default     = false
 }
 
 variable "multi_az" {
   description = "Specifies if the database instance should be deployed across multiple availability zones"
   type        = bool
-  // default     = true
 }
 
 variable "publicly_accessible" {
   description = "Specifies if the database instance should be publicly accessible"
   type        = bool
-  // default     = false
 }
 
 variable "backup_retention_period" {
   description = "The number of days to retain backups for the database instance"
   type        = number
-  // default     = 7
 }
 
 variable "backup_window" {
   description = "The daily time range during which automated backups are created"
   type        = string
-  // default     = "00:00-00:30"
 }
 
 variable "maintenance_window" {
   description = "The weekly time range (in UTC) during which system maintenance can occur"
   type        = string
-  // default     = "sun:23:00-sun:23:30"
-
+}

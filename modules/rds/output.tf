@@ -1,12 +1,12 @@
 # outputs.tf
 output "db_instance_endpoint" {
   description = "The connection endpoint"
-  value       = aws_db_instance.postgres.endpoint
+  value       = aws_db_instance.mysql.endpoint
 }
 
 output "db_instance_arn" {
   description = "The ARN of the RDS instance"
-  value       = aws_db_instance.postgres.arn
+  value       = aws_db_instance.mysql.arn
 }
 
 output "db_secret_arn" {

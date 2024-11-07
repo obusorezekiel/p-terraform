@@ -68,8 +68,8 @@ resource "aws_security_group" "complex_rds_sg" {
   vpc_id      = var.vpc_id
 
   ingress {
-    from_port       = var.postgres_port
-    to_port         = var.postgres_port
+    from_port       = var.mysql_port
+    to_port         = var.mysql_port
     protocol        = "tcp"
     security_groups = [aws_security_group.complex_backend_ecs_sg.id]
   }

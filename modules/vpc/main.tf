@@ -55,22 +55,12 @@ resource "aws_route" "complex_pub_route" {
     route_table_id = aws_route_table.complex_pub_rt.id
     destination_cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.complex_igw.id
-    
-    tags = {
-      Name = "aws-route-${var.environment}"
-      Environment = var.environment
-    }
 }
 
 resource "aws_route_table_association" "complex_pub_rt_assoc" {
   count = var.public_sn_count
   subnet_id = aws_subnet.complex_public_subnets.*.id[count.index]
   route_table_id = aws_route_table.complex_pub_rt.id
-
-  tags = {
-      Name = "aws-route-table-assoc-${var.environment}"
-      Environment = var.environment
-    }
 }
 
 resource "aws_eip" "complex_nat_eip" {
@@ -166,7 +156,7 @@ resource "aws_db_subnet_group" "complex_rds_subnetgroup" {
   subnet_ids = [aws_subnet.complex_db_subnets[0].id, aws_subnet.complex_db_subnets[1].id]
 
   tags = {
-    Name = "complex_rds_sng-${var-environment}"
+    Name = "complex_rds_sng-${var.environment}"
     Environment = var.environment
   }
 }

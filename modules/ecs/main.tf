@@ -62,12 +62,6 @@ resource "aws_ecs_service" "main" {
   desired_count   = 3
 
   load_balancer {
-    target_group_arn = var.tg_http_arn
-    container_name   = var.app_name
-    container_port   = var.container_port
-  }
-
-  load_balancer {
     target_group_arn = var.tg_https_arn
     container_name   = var.app_name
     container_port   = var.container_port

@@ -36,7 +36,7 @@ variable "https_port" {
   type        = number
 }
 
-variable "postgres_port" {
+variable "mysql_port" {
   description = "The PostgreSQL port for the RDS instance"
   type        = number
 }

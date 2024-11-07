@@ -20,9 +20,9 @@ resource "aws_secretsmanager_secret_version" "initial_password" {
   secret_string = random_password.db_password.result
 }
 
-resource "aws_db_instance" "postgres" {
+resource "aws_db_instance" "mysql" {
   identifier              = var.identifier
-  engine                  = "postgres"
+  engine                  = "mysql"
   engine_version          = var.engine_version
   instance_class          = var.instance_class
   allocated_storage        = var.allocated_storage
@@ -45,7 +45,7 @@ resource "aws_db_instance" "postgres" {
   maintenance_window      = var.maintenance_window
 
   tags = {
-    Name        = "${var.identifier}-postgres-${var.environment}"
+    Name        = "${var.identifier}-mysql-${var.environment}"
     Environment = var.environment
   }
 }
@@ -55,11 +55,11 @@ resource "aws_secretsmanager_secret_version" "db_password_details" {
   secret_string = jsonencode({
     username = var.db_username
     password = random_password.db_password.result
-    engine   = "postgres"
-    host     = aws_db_instance.postgres.endpoint
+    engine   = "mysql"
+    host     = aws_db_instance.mysql.endpoint
     port     = var.port
     dbname   = var.database_name
   })
 
-  depends_on = [aws_db_instance.postgres]
+  depends_on = [aws_db_instance.mysql]
 }
