@@ -106,7 +106,6 @@ module "rds" {
   backup_window             = var.backup_window
   maintenance_window        = var.maintenance_window
   storage_encrypted         = var.storage_encrypted
-
 }
 
 

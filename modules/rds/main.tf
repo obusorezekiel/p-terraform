@@ -11,10 +11,10 @@ resource "aws_kms_key" "rds_key" {
 
 # Store password in Secrets Manager
 resource "aws_secretsmanager_secret" "db_password" {
-  name = "${var.identifier}-db-password"
+  name = "${var.identifier}-db-pass"
 
   tags = {
-    Name        = "${var.identifier}-db-password-${var.environment}"
+    Name        = "${var.identifier}-db-pass-${var.environment}"
     Environment = var.environment
   }
 }

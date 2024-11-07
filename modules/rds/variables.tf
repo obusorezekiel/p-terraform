@@ -87,3 +87,8 @@ variable "maintenance_window" {
   description = "Maintenance window in UTC (e.g., 'sun:23:00-sun:23:30')"
   type        = string
 }
+
+variable "storage_encrypted" {
+  description = "Enable encryption for the RDS instance"
+  type        = bool
+}
