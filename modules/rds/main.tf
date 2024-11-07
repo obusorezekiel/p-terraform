@@ -4,6 +4,11 @@ resource "random_password" "db_password" {
   override_special = "!#$%&*()-_=+[]{}<>:?"
 }
 
+# Create a KMS key for RDS encryption
+resource "aws_kms_key" "rds_key" {
+  description = "KMS key for encrypting RDS database"
+}
+
 # Store password in Secrets Manager
 resource "aws_secretsmanager_secret" "db_password" {
   name = "${var.identifier}-db-password"
@@ -43,6 +48,8 @@ resource "aws_db_instance" "mysql" {
   backup_retention_period  = var.backup_retention_period
   backup_window           = var.backup_window
   maintenance_window      = var.maintenance_window
+  storage_encrypted        = var.storage_encrypted
+  kms_key_id               = aws_kms_key.rds_key.arn
 
   tags = {
     Name        = "${var.identifier}-mysql-${var.environment}"

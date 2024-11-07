@@ -37,5 +37,6 @@ deletion_protection        = false
 multi_az                   = true
 publicly_accessible        = false
 backup_retention_period    = 7
+storage_encrypted = true
 backup_window              = "00:00-00:30"
 maintenance_window         = "sun:23:00-sun:23:30"

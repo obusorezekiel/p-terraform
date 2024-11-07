@@ -28,7 +28,7 @@ module "sg" {
   environment         = local.environment
   http_port           = var.http_port
   https_port          = var.https_port
-  mysql_port       = var.db_port
+  mysql_port          = var.db_port
   ingress_cidr_blocks = var.ingress_cidr_blocks
   egress_cidr_blocks  = var.egress_cidr_blocks
 }
@@ -105,6 +105,7 @@ module "rds" {
   backup_retention_period   = var.backup_retention_period
   backup_window             = var.backup_window
   maintenance_window        = var.maintenance_window
+  storage_encrypted         = var.storage_encrypted
 
 }
 
