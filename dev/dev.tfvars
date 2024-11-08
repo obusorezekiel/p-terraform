@@ -40,3 +40,4 @@ backup_retention_period    = 7
 backup_window              = "00:00-00:30"
 maintenance_window         = "sun:23:00-sun:23:30"
 storage_encrypted          = true
+

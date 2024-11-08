@@ -92,3 +92,9 @@ variable "storage_encrypted" {
   description = "Enable encryption for the RDS instance"
   type        = bool
 }
+
+variable "kms_key_id" {
+    description = "Key for KMS cluster"
+    type = string
+}
+

@@ -13,3 +13,4 @@ output "db_secret_arn" {
   description = "The ARN of the secret storing the database credentials"
   value       = aws_secretsmanager_secret.db_password.arn
 }
+

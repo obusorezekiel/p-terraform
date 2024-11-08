@@ -10,6 +10,17 @@ locals {
   vpc_cidr      = "10.0.0.0/16"
 }
 
+module "s3_bucket" {
+  source      = "./modules/s3_bucket"
+  bucket_name = "my-terraform-state-bucket"
+  kms_key_id = module.kms.kms_key_arn
+}
+
+module "dynamodb_table" {
+  source     = "./modules/dynamodb_table"
+  table_name = "terraform-lock-table"
+}
+
 module "vpc" {
   source           = "./modules/vpc"
   environment      = local.environment
@@ -85,6 +96,10 @@ module "ecs" {
   ecs_sg          = module.sg.backend_security_group_id
 }
 
+module "kms" {
+  source = "./modules/kms"
+}
+
 module "rds" {
   source                    = "./modules/rds"
   environment               = local.environment
@@ -106,6 +121,7 @@ module "rds" {
   backup_window             = var.backup_window
   maintenance_window        = var.maintenance_window
   storage_encrypted         = var.storage_encrypted
+  kms_key_id                = module.kms.kms_key_arn
 }
 
 
