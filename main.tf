@@ -12,17 +12,15 @@ locals {
   vpc_cidr      = "10.0.0.0/16"
 }
 
-# Module to create an S3 bucket for storing Terraform state
-module "s3_bucket" {
-  source      = "./modules/s3_bucket"
+module "s3" {
+  source      = "./modules/s3"
   bucket_name = "my-terraform-state-bucket"
-  kms_key_id = module.kms.kms_key_arn
+  kms_key_arn = module.kms.kms_key_arn
 }
 
-# Module to create a DynamoDB table for state locking
-module "dynamodb_table" {
-  source     = "./modules/dynamodb_table"
-  table_name = "terraform-lock-table"
+module "dynamodb" {
+  source     = "./modules/dynamodb"
+  table_name = "terraform-locks"
 }
 
 # Module to create a VPC with the specified CIDR and subnet configuration
