@@ -1,9 +1,10 @@
+# Generate a random integer between 1 and 10
 resource "random_integer" "random" {
     min = 1
     max = 10
 }
 
-
+# VPC creation with specified CIDR block, DNS support, and hostname enablement
 resource "aws_vpc" "complex_vpc" {
     cidr_block = var.vpc_cidr
     enable_dns_hostnames = true
@@ -18,9 +19,10 @@ resource "aws_vpc" "complex_vpc" {
         create_before_destroy = true
     }
 }
-
+# Fetch the list of available AWS availability zones
 data "aws_availability_zones" "available" {}
 
+# Create an Internet Gateway (IGW) and attach it to the VPC
 resource "aws_internet_gateway" "complex_igw" {
     vpc_id = aws_vpc.complex_vpc.id
 
@@ -30,6 +32,7 @@ resource "aws_internet_gateway" "complex_igw" {
     }
 }
 
+# Create public subnets in the VPC
 resource "aws_subnet" "complex_public_subnets" {
     count = var.public_sn_count
     vpc_id = aws_vpc.complex_vpc.id
@@ -43,6 +46,7 @@ resource "aws_subnet" "complex_public_subnets" {
     }
 }
 
+# Create a route table for public subnets
 resource "aws_route_table" "complex_pub_rt" {
     vpc_id = aws_vpc.complex_vpc.id
     tags = {
@@ -51,18 +55,21 @@ resource "aws_route_table" "complex_pub_rt" {
     }
 }
 
+# Add a route to the public route table for internet traffic (0.0.0.0/0)
 resource "aws_route" "complex_pub_route" {
     route_table_id = aws_route_table.complex_pub_rt.id
     destination_cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.complex_igw.id
 }
 
+# Associate the public route table with the public subnets
 resource "aws_route_table_association" "complex_pub_rt_assoc" {
   count = var.public_sn_count
   subnet_id = aws_subnet.complex_public_subnets.*.id[count.index]
   route_table_id = aws_route_table.complex_pub_rt.id
 }
 
+# Allocate an Elastic IP (EIP) for the NAT Gateway
 resource "aws_eip" "complex_nat_eip" {
     domain = "vpc"
 
@@ -72,6 +79,7 @@ resource "aws_eip" "complex_nat_eip" {
     }
 }
 
+# Create a NAT Gateway and associate it with the EIP
 resource "aws_nat_gateway" "complex_ngw" {
     allocation_id = aws_eip.complex_nat_eip.id
     subnet_id = aws_subnet.complex_public_subnets[0].id
@@ -82,6 +90,7 @@ resource "aws_nat_gateway" "complex_ngw" {
     }
 }
 
+# Create private subnets in the VPC (subnets that do not have direct internet access)
 resource "aws_subnet" "complex_private_subnets" {
     count = var.private_sn_count
     vpc_id = aws_vpc.complex_vpc.id
@@ -95,6 +104,7 @@ resource "aws_subnet" "complex_private_subnets" {
     }
 }
 
+# Create a route table for private subnets
 resource "aws_route_table" "complex_private_rt" {
   vpc_id = aws_vpc.complex_vpc.id
 
@@ -104,18 +114,21 @@ resource "aws_route_table" "complex_private_rt" {
   }
 }
 
+# Add a route to the private route table for internet traffic via NAT Gateway
 resource "aws_route" "complex_private_route" {
   route_table_id = aws_route_table.complex_private_rt.id
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id = aws_nat_gateway.complex_ngw.id
 }
 
+# Associate the private route table with the private subnets
 resource "aws_route_table_association" "complex_private_rt_assoc" {
   count = var.private_sn_count
   route_table_id = aws_route_table.complex_private_rt.id
   subnet_id = aws_subnet.complex_private_subnets.*.id[count.index]
 }
 
+# Create DB subnets in the VPC (subnets dedicated to the database)
 resource "aws_subnet" "complex_db_subnets" {
   count = var.private_sn_count
   vpc_id = aws_vpc.complex_vpc.id
@@ -129,6 +142,7 @@ resource "aws_subnet" "complex_db_subnets" {
   }
 }
 
+# Create a route table for the database subnets
 resource "aws_route_table" "complex_db_rt" {
   vpc_id = aws_vpc.complex_vpc.id
 
@@ -138,18 +152,21 @@ resource "aws_route_table" "complex_db_rt" {
   }
 }
 
+# Add a route to the database route table to route internet traffic via NAT Gateway
 resource "aws_route" "complex_db_route" {
   route_table_id = aws_route_table.complex_db_rt.id
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id = aws_nat_gateway.complex_ngw.id
 }
 
+# Associate the database route table with the database subnets
 resource "aws_route_table_association" "complex_db_rt_assoc" {
   count = var.private_sn_count
   route_table_id = aws_route_table.complex_db_rt.id
   subnet_id = aws_subnet.complex_db_subnets.*.id[count.index]
 }
 
+# Create an RDS subnet group for the database
 resource "aws_db_subnet_group" "complex_rds_subnetgroup" {
   count      = var.db_subnet_group == true ? 1 : 0
   name       = "complex_rds_subnetgroup"

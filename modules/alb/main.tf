@@ -1,4 +1,4 @@
-# Load Balancer
+# Load Balancer Configuration - Defines the settings for the application load balancer
 resource "aws_lb" "complex_lb" {
   name            = "complex-lb"
   security_groups = [var.lb_sg]
@@ -11,13 +11,23 @@ resource "aws_lb" "complex_lb" {
   }
 }
 
-# HTTP Target Group
+# HTTP Target Group Configuration - Specifies the target group for HTTP traffic
 resource "aws_lb_target_group" "complex_http_tg" {
   name         = "complex-lb-http-tg-${substr(uuid(), 0, 8)}"
   port         = var.tg_http_port
   protocol     = var.tg_http_protocol
   vpc_id       = var.vpc_id
   target_type  = "ip"
+
+  health_check {
+    path                = "/health"
+    port                = 80  # Health check on HTTP port
+    protocol            = "HTTP"  # Health check via HTTP
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 3
+    unhealthy_threshold = 3
+  }
 
   lifecycle {
     ignore_changes        = [name]
@@ -30,13 +40,23 @@ resource "aws_lb_target_group" "complex_http_tg" {
   }
 }
 
-# HTTPS Target Group
+# HTTPS Target Group Configuration - Specifies the target group for HTTPS traffic with health checks
 resource "aws_lb_target_group" "complex_https_tg" {
   name         = "complex-lb-https-tg-${substr(uuid(), 0, 8)}"
   port         = var.tg_https_port
   protocol     = var.tg_https_protocol
   vpc_id       = var.vpc_id
   target_type  = "ip"
+
+  health_check {
+    path                = "/health"
+    port                = 443  # Health check on HTTPS port
+    protocol            = "HTTPS"  # Health check via HTTPS
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 3
+    unhealthy_threshold = 3
+  }
 
   lifecycle {
     ignore_changes        = [name]
@@ -49,7 +69,7 @@ resource "aws_lb_target_group" "complex_https_tg" {
   }
 }
 
-# HTTP Listener
+# HTTP Listener Configuration - Defines the listener for HTTP traffic, which redirects to HTTPS
 resource "aws_lb_listener" "complex_lb_http_listener" {
   load_balancer_arn = aws_lb.complex_lb.arn
   port              = var.listener_http_port
@@ -70,7 +90,7 @@ resource "aws_lb_listener" "complex_lb_http_listener" {
   }
 }
 
-# HTTPS Listener
+# HTTPS Listener Configuration - Defines the listener for HTTPS traffic with SSL configuration
 resource "aws_lb_listener" "complex_lb_https_listener" {
   load_balancer_arn = aws_lb.complex_lb.arn
   port              = var.listener_https_port

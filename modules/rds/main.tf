@@ -1,3 +1,5 @@
+# Generate a random password for the database with a length of 16 characters
+# including special characters for enhanced security.
 resource "random_password" "db_password" {
   length           = 16
   special          = true
@@ -5,22 +7,26 @@ resource "random_password" "db_password" {
 }
 
 
-# Store password in Secrets Manager
+# Create a Secrets Manager secret to store the generated database password
+# The secret name is based on the identifier and the environment to distinguish between different instances.
 resource "aws_secretsmanager_secret" "db_password" {
-  name = "${var.identifier}-db-pas"
+  name = "${var.identifier}-db"
 
   tags = {
-    Name        = "${var.identifier}-db-pass-${var.environment}"
+    Name        = "${var.identifier}-db-password-${var.environment}"
     Environment = var.environment
   }
 }
 
-# Store initial password version
+# Store the generated password as a version in Secrets Manager
+# This is the initial version of the database password.
 resource "aws_secretsmanager_secret_version" "initial_password" {
   secret_id     = aws_secretsmanager_secret.db_password.id
   secret_string = random_password.db_password.result
 }
 
+# Create an AWS RDS MySQL instance with configurations specified in the variables
+# The instance is provisioned with a generated password from the Secrets Manager.
 resource "aws_db_instance" "mysql" {
   identifier              = var.identifier
   engine                  = "mysql"
@@ -53,6 +59,8 @@ resource "aws_db_instance" "mysql" {
   }
 }
 
+# Store the database connection details in Secrets Manager
+# The secret contains the username, password, engine, host, port, and database name for easy access.
 resource "aws_secretsmanager_secret_version" "db_password_details" {
   secret_id = aws_secretsmanager_secret.db_password.id
   secret_string = jsonencode({

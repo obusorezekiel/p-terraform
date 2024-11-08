@@ -1,8 +1,10 @@
+# Fetch the Route 53 DNS zone information for "mytoolings.xyz"
 data "aws_route53_zone" "main" {
   name         = "mytoolings.xyz"
   private_zone = false
 }
 
+# Define local variables for instance type, region, environment, and VPC CIDR block
 locals {
   instance_type = "t2.small"
   location      = "us-east-1"
@@ -10,17 +12,20 @@ locals {
   vpc_cidr      = "10.0.0.0/16"
 }
 
+# Module to create an S3 bucket for storing Terraform state
 module "s3_bucket" {
   source      = "./modules/s3_bucket"
   bucket_name = "my-terraform-state-bucket"
   kms_key_id = module.kms.kms_key_arn
 }
 
+# Module to create a DynamoDB table for state locking
 module "dynamodb_table" {
   source     = "./modules/dynamodb_table"
   table_name = "terraform-lock-table"
 }
 
+# Module to create a VPC with the specified CIDR and subnet configuration
 module "vpc" {
   source           = "./modules/vpc"
   environment      = local.environment
@@ -30,6 +35,7 @@ module "vpc" {
   db_subnet_group  = var.db_subnet_group
 }
 
+# Module to create security groups for load balancer, backend ECS, and RDS
 module "sg" {
   source              = "./modules/sg"
   vpc_id              = module.vpc.vpc_id
@@ -44,7 +50,7 @@ module "sg" {
   egress_cidr_blocks  = var.egress_cidr_blocks
 }
 
-
+# Module to create an SSL/TLS certificate using ACM
 module "certificate" {
   source      = "./modules/certificate"
   environment = local.environment
@@ -52,6 +58,7 @@ module "certificate" {
   zone_id     = data.aws_route53_zone.main.zone_id
 }
 
+# Module to create a CloudFront distribution with the ALB as the origin
 module "cloudfront" {
   source          = "./modules/cloudfront"
   environment     = local.environment
@@ -62,7 +69,7 @@ module "cloudfront" {
   depends_on = [module.certificate]
 }
 
-
+# Module to create an Application Load Balancer (ALB)
 module "alb" {
   source                  = "./modules/alb"
   lb_sg                   = module.sg.lb_security_group_id
@@ -82,6 +89,7 @@ module "alb" {
   depends_on = [module.certificate]
 }
 
+# Module to create ECS services and tasks within the VPC
 module "ecs" {
   source          = "./modules/ecs"
   ecs_cluster     = var.ecs_cluster
@@ -96,10 +104,12 @@ module "ecs" {
   ecs_sg          = module.sg.backend_security_group_id
 }
 
+# Module to create a KMS key for encryption
 module "kms" {
   source = "./modules/kms"
 }
 
+# Module to create an RDS database instance within the VPC
 module "rds" {
   source                    = "./modules/rds"
   environment               = local.environment

@@ -1,20 +1,21 @@
+# Security Group for Load Balancer
 resource "aws_security_group" "complex_lb_sg" {
   name        = var.lb_sg_name
   description = "Allow Inbound HTTP and HTTPS Traffic"
-  vpc_id      = var.vpc_id
+  vpc_id      = var.vpc_id # VPC ID to associate this security group with
 
   ingress {
     from_port   = var.http_port
     to_port     = var.http_port
     protocol    = "tcp"
-    cidr_blocks = var.ingress_cidr_blocks
+    cidr_blocks = var.ingress_cidr_blocks # Allowed CIDR blocks for ingress
   }
 
   ingress {
     from_port   = var.https_port
     to_port     = var.https_port
     protocol    = "tcp"
-    cidr_blocks = var.ingress_cidr_blocks
+    cidr_blocks = var.ingress_cidr_blocks # Allowed CIDR blocks for egress
   }
 
   egress {
@@ -30,16 +31,17 @@ resource "aws_security_group" "complex_lb_sg" {
   }
 }
 
+# Security Group for Backend ECS Services
 resource "aws_security_group" "complex_backend_ecs_sg" {
   name        = var.backend_sg_name
   description = "Allow Inbound HTTP from Load Balancer"
-  vpc_id      = var.vpc_id
+  vpc_id      = var.vpc_id # VPC ID to associate this security group with
 
   ingress {
     from_port       = var.http_port
     to_port         = var.http_port
     protocol        = "tcp"
-    security_groups = [aws_security_group.complex_lb_sg.id]
+    security_groups = [aws_security_group.complex_lb_sg.id] # Source is the Load Balancer's SG
   }
 
   ingress {
@@ -62,18 +64,21 @@ resource "aws_security_group" "complex_backend_ecs_sg" {
   }
 }
 
+# Security Group for RDS Database
 resource "aws_security_group" "complex_rds_sg" {
   name        = var.rds_sg_name
-  description = "Allow PostgreSQL Port Inbound Traffic from Backend App Security Group"
-  vpc_id      = var.vpc_id
+  description = "Allow MySQL Port Inbound Traffic from Backend App Security Group"
+  vpc_id      = var.vpc_id # VPC ID to associate this security group with
 
+  # Ingress rule to allow traffic on MySQL port (3306) from the Backend ECS security group
   ingress {
     from_port       = var.mysql_port
     to_port         = var.mysql_port
     protocol        = "tcp"
-    security_groups = [aws_security_group.complex_backend_ecs_sg.id]
+    security_groups = [aws_security_group.complex_backend_ecs_sg.id] # Source is the ECS's SG
   }
 
+  # Egress rule to allow all outbound traffic (unrestricted)
   egress {
     from_port   = 0
     to_port     = 0

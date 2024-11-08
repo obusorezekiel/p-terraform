@@ -1,3 +1,4 @@
+# CloudFront Distribution - Configure the main CloudFront distribution for the application
 resource "aws_cloudfront_distribution" "main" {
   enabled             = true
   is_ipv6_enabled     = true
@@ -16,6 +17,7 @@ resource "aws_cloudfront_distribution" "main" {
     }
   }
 
+  # Default Cache Behavior - Configure caching and request handling settings
   default_cache_behavior {
     allowed_methods        = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cached_methods         = ["GET", "HEAD"]
@@ -38,18 +40,21 @@ resource "aws_cloudfront_distribution" "main" {
 
   price_class = "PriceClass_100"
 
+  # Geo Restriction - Control content access based on geographic location
   restrictions {
     geo_restriction {
       restriction_type = "none"
     }
   }
 
+  # Viewer Certificate - Configure SSL for CloudFront using ACM
   viewer_certificate {
     acm_certificate_arn      = var.certificate_arn  # Make sure this covers var.domain_name
     minimum_protocol_version = "TLSv1.2_2021"
     ssl_support_method       = "sni-only"
   }
 
+  # Tags for identification
   tags = {
     Name        = "cloudfront-${var.environment}"
     Environment = var.environment
