@@ -13,13 +13,13 @@ locals {
 }
 
 module "s3" {
-  source      = "./modules/s3"
+  source      = "./modules/s3_bucket"
   bucket_name = "my-terraform-state-bucket"
   kms_key_arn = module.kms.kms_key_arn
 }
 
 module "dynamodb" {
-  source     = "./modules/dynamodb"
+  source     = "./modules/dynamodb_table"
   table_name = "terraform-locks"
 }
 
