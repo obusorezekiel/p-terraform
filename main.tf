@@ -1,15 +1,12 @@
+# Keep the existing data source
+data "aws_availability_zones" "available" {
+  state = "available"
+}
+
 # Fetch the Route 53 DNS zone information for "mytoolings.xyz"
 data "aws_route53_zone" "main" {
   name         = "mytoolings.xyz"
   private_zone = false
-}
-
-# Define local variables for instance type, region, environment, and VPC CIDR block
-locals {
-  instance_type = "t2.small"
-  location      = "us-east-1"
-  environment   = var.environment
-  vpc_cidr      = "10.0.0.0/16"
 }
 
 module "s3" {
@@ -25,13 +22,72 @@ module "dynamodb" {
 }
 
 # Module to create a VPC with the specified CIDR and subnet configuration
+# Random integer resource remains unchanged
+resource "random_integer" "random" {
+    min = 1
+    max = 10
+}
+
 module "vpc" {
-  source           = "./modules/vpc"
-  environment      = local.environment
-  vpc_cidr         = local.vpc_cidr
-  public_sn_count  = var.public_sn_count
-  private_sn_count = var.private_sn_count
-  db_subnet_group  = var.db_subnet_group
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "~> 5.0"
+
+  name = local.vpc_name
+  cidr = local.vpc_cidr
+
+  azs             = local.azs
+  public_subnets  = local.public_subnet_cidrs
+  private_subnets = local.private_subnet_cidrs
+  database_subnets = local.database_subnet_cidrs
+
+  create_database_subnet_group = var.db_subnet_group
+  database_subnet_group_name  = var.db_subnet_group ? local.db_subnet_group_name : null
+
+  # NAT Gateway configuration
+  enable_nat_gateway     = true
+  single_nat_gateway     = true
+  one_nat_gateway_per_az = false
+
+  # DNS settings
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+
+  # Public subnet configuration
+  map_public_ip_on_launch = true
+
+  # Tags
+  tags = local.common_tags
+
+  public_subnet_tags = merge(
+    local.common_tags,
+    {
+      Name = local.public_subnet_name
+      Tier = "Public"
+    }
+  )
+
+  private_subnet_tags = merge(
+    local.common_tags,
+    {
+      Name = local.private_subnet_name
+      Tier = "Private"
+    }
+  )
+
+  database_subnet_tags = merge(
+    local.common_tags,
+    {
+      Name = local.database_subnet_name
+      Tier = "Database"
+    }
+  )
+
+  vpc_tags = merge(
+    local.common_tags,
+    {
+      Name = local.vpc_name
+    }
+  )
 }
 
 # Module to create security groups for load balancer, backend ECS, and RDS
@@ -73,7 +129,7 @@ module "alb" {
   source                  = "./modules/alb"
   lb_sg                   = module.sg.lb_security_group_id
   environment             = local.environment
-  public_subnets          = module.vpc.public_subnet_ids
+  public_subnets          = module.vpc.public_subnets
   vpc_id                  = module.vpc.vpc_id
   tg_http_port            = var.tg_http_port
   tg_http_protocol        = var.tg_http_protocol
@@ -99,7 +155,7 @@ module "ecs" {
   container_port  = var.container_port
   tg_http_arn     = module.alb.http_target_group_arn
   tg_https_arn    = module.alb.https_target_group_arn
-  private_subnets = module.vpc.private_subnet_ids
+  private_subnets = module.vpc.private_subnets
   ecs_sg          = module.sg.backend_security_group_id
 }
 
@@ -119,7 +175,7 @@ module "rds" {
   allocated_storage         = var.allocated_storage
   database_name             = var.database_name
   db_username               = var.db_username
-  db_subnet_group           = module.vpc.db_subnet_group_name
+  db_subnet_group           = module.vpc.database_subnet_group_name
   security_group            = module.sg.rds_security_group_id
   skip_final_snapshot       = var.skip_final_snapshot
   final_snapshot_identifier = var.final_snapshot_identifier
