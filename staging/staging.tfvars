@@ -25,7 +25,7 @@ app_name                   = "nginx"
 container_image            = "nginx"
 container_port             = 80
 identifier                 = "my-rds-identifier"
-engine_version             = "12.15"
+engine_version             = "8.0.34"
 instance_class             = "db.t3.medium"
 db_port                    = 3306
 allocated_storage          = 20
@@ -39,3 +39,5 @@ publicly_accessible        = false
 backup_retention_period    = 7
 backup_window              = "00:00-00:30"
 maintenance_window         = "sun:23:00-sun:23:30"
+storage_encrypted          = true
+

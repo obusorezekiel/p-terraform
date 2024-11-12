@@ -1,9 +1,16 @@
+# variables.tf
 variable "bucket_name" {
+  description = "Name of the S3 bucket for terraform state"
   type        = string
-  description = "The name of the S3 bucket for Terraform state"
 }
 
 variable "kms_key_id" {
+  description = "KMS key ID for bucket encryption"
   type        = string
-  description = "The KMS key ID for bucket encryption"
 }
+
+variable "environment" {
+  description = "The environment for the resources"
+  type        = string
+}
+
