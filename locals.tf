@@ -34,8 +34,8 @@ locals {
 
   # Resource naming
   vpc_name               = "vpc-${local.environment}"
-  public_subnet_name     = "public-subnet-${local.environment}-${var.public_sn_count}"
-  private_subnet_name    = "private-subnet-${local.environment}-${var.private_sn_count}"
+  public_subnet_name     = "public-subnet-${local.environment}"
+  private_subnet_name    = "private-subnet-${local.environment}"
   database_subnet_name   = "db-subnet-${local.environment}"
   db_subnet_group_name   = "rds_subnetgroup"
 }
